@@ -1,0 +1,488 @@
+name: CI/CD Pipeline
+description: Comprehensive CI/CD pipeline for Laravel Log Viewer Platform
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run security scans weekly
+    - cron: '0 2 * * 1'
+
+env:
+  PHP_VERSION: '8.2'
+  COMPOSER_CACHE_DIR: ~/.composer/cache
+  COMPOSER_NO_INTERACTION: 1
+
+jobs:
+  # Code Quality & Static Analysis
+  code-quality:
+    name: Code Quality & Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: xdebug
+          
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Run PHP_CodeSniffer
+        run: |
+          ./vendor/bin/phpcs --standard=PSR12 src/ tests/
+          
+      - name: Run PHPStan
+        run: |
+          ./vendor/bin/phpstan analyse src/ --level=8
+          
+      - name: Run Psalm
+        run: |
+          ./vendor/bin/psalm --no-progress
+          
+      - name: Run PHP Mess Detector
+        run: |
+          ./vendor/bin/phpmd src/ text cleancode,codesize,controversial,design,naming,unusedcode
+          
+      - name: Check for security vulnerabilities
+        run: |
+          composer audit --format=json --no-interaction
+          
+      - name: Upload code quality results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-quality-results
+          path: |
+            phpcs-report.xml
+            phpstan-report.xml
+            psalm-report.xml
+            phpmd-report.xml
+
+  # Unit & Integration Tests
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: code-quality
+    
+    strategy:
+      matrix:
+        php-version: [8.1, 8.2, 8.3]
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          coverage: xdebug
+          
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('**/composer.lock') }}-${{ matrix.php-version }}
+          restore-keys: composer-${{ matrix.php-version }}-
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Create .env file
+        run: |
+          cp .env.example .env
+          echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
+          echo "CACHE_DRIVER=array" >> .env
+          echo "SESSION_DRIVER=array" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+          
+      - name: Run tests
+        run: |
+          ./vendor/bin/phpunit --coverage-clover=coverage.xml --coverage-html=coverage-html
+          
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports-${{ matrix.php-version }}
+          path: |
+            coverage.xml
+            coverage-html/
+            
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # Security Scanning
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: Run OWASP ZAP scan
+        uses: zaproxy/action-full-scan@v0.8.0
+        with:
+          target: 'http://localhost:8000'
+          
+      - name: Run Composer security audit
+        run: |
+          composer audit --format=json --no-interaction > composer-audit.json
+          
+      - name: Upload security results
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-scan-results
+          path: |
+            composer-audit.json
+            zap-report.html
+
+  # Performance Testing
+  performance:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Setup test environment
+        run: |
+          cp .env.example .env
+          echo "APP_KEY=base64:$(openssl rand -base64 32)" >> .env
+          echo "DB_CONNECTION=sqlite" >> .env
+          echo "DB_DATABASE=:memory:" >> .env
+          
+      - name: Run performance tests
+        run: |
+          ./vendor/bin/phpunit --testsuite=performance
+          
+      - name: Run memory usage analysis
+        run: |
+          php -d memory_limit=512M ./vendor/bin/phpunit --testsuite=memory
+          
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: |
+            performance-report.json
+            memory-usage.log
+
+  # Build & Package
+  build:
+    name: Build & Package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [tests, security]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-dev --optimize-autoloader
+        
+      - name: Create package
+        run: |
+          tar -czf log-viewer-platform.tar.gz \
+            --exclude='.git' \
+            --exclude='tests' \
+            --exclude='.github' \
+            --exclude='.env*' \
+            --exclude='node_modules' \
+            --exclude='vendor' \
+            .
+            
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: log-viewer-platform-package
+          path: log-viewer-platform.tar.gz
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Windsurf CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        
+      - name: Deploy to Windsurf Staging
+        run: |
+          windsurf deploy --app log-viewer-platform-staging
+        env:
+          WINDSURF_TOKEN: ${{ secrets.WINDSURF_TOKEN }}
+          
+      - name: Run smoke tests
+        run: |
+          curl -f https://log-viewer-platform-staging.windsurf.app/health
+          
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: 'Staging deployment successful'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Windsurf CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+        
+      - name: Deploy to Windsurf Production
+        run: |
+          windsurf deploy --app log-viewer-platform
+        env:
+          WINDSURF_TOKEN: ${{ secrets.WINDSURF_TOKEN }}
+          
+      - name: Run health checks
+        run: |
+          curl -f https://log-viewer-platform.windsurf.app/health
+          
+      - name: Run performance tests
+        run: |
+          curl -w "@curl-format.txt" -o /dev/null -s https://log-viewer-platform.windsurf.app/
+          
+      - name: Notify deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: success
+          channel: '#deployments'
+          text: 'Production deployment successful'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Release Management
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: deploy-production
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Generate changelog
+        run: |
+          git log --oneline $(git describe --tags --abbrev=0 HEAD^)..HEAD > changelog.txt
+          
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body_path: changelog.txt
+          draft: false
+          prerelease: false
+          
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./log-viewer-platform.tar.gz
+          asset_name: log-viewer-platform.tar.gz
+          asset_content_type: application/gzip
+
+  # Dependency Updates
+  dependency-updates:
+    name: Check for Dependency Updates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          
+      - name: Check for outdated dependencies
+        run: |
+          composer outdated --format=json > outdated-deps.json
+          
+      - name: Check for security updates
+        run: |
+          composer audit --format=json > security-audit.json
+          
+      - name: Create dependency update issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const outdated = JSON.parse(fs.readFileSync('outdated-deps.json', 'utf8'));
+            const security = JSON.parse(fs.readFileSync('security-audit.json', 'utf8'));
+            
+            if (outdated.length > 0 || security.length > 0) {
+              const body = `## Dependency Updates Needed
+              
+              ### Outdated Dependencies
+              ${outdated.map(dep => `- ${dep.name}: ${dep.version} → ${dep.latest}`).join('\n')}
+              
+              ### Security Vulnerabilities
+              ${security.map(vuln => `- ${vuln.package}: ${vuln.advisory}`).join('\n')}
+              
+              Please review and update dependencies as needed.`;
+              
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Dependency Updates Available',
+                body: body,
+                labels: ['dependencies', 'maintenance']
+              });
+            }
+
+  # Documentation Generation
+  docs:
+    name: Generate Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo
+          
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Generate API documentation
+        run: |
+          php artisan docs:generate
+          
+      - name: Generate PHPDoc
+        run: |
+          ./vendor/bin/phpdoc -d src/ -t docs/api
+          
+      - name: Upload documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation
+          path: |
+            docs/api/
+            docs/build/
+
+  # Notifications
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [tests, security, performance, deploy-production]
+    if: always()
+    
+    steps:
+      - name: Notify on failure
+        uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: failure
+          channel: '#deployments'
+          text: 'CI/CD pipeline failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          
+      - name: Notify on success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          channel: '#deployments'
+          text: 'CI/CD pipeline completed successfully'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }} 

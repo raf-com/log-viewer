@@ -1,0 +1,232 @@
+# Cursor Rules for Laravel Log Viewer Platform
+# Comprehensive AI Configuration for Development Excellence
+
+## Platform Overview
+This is a Laravel-based log viewer package that provides real-time log monitoring capabilities. The platform integrates with Laravel applications to offer advanced log viewing, filtering, and analysis features.
+
+## Core Technologies & Dependencies
+- **Framework**: Laravel (PHP 8.0+)
+- **Package Type**: Composer library
+- **Namespace**: Acelle\Extra\LogViewer
+- **Testing**: PHPUnit
+- **Frontend**: Blade templates with potential JavaScript enhancements
+
+## AI Development Guidelines
+
+### Code Quality Standards
+- Follow PSR-4 autoloading standards
+- Maintain Laravel coding conventions
+- Use type hints and return types (PHP 7.4+)
+- Implement comprehensive error handling
+- Write unit tests for all new functionality
+- Follow SOLID principles and design patterns
+
+### Laravel-Specific Patterns
+- Use Laravel service providers for dependency injection
+- Implement proper middleware for security
+- Follow Laravel naming conventions
+- Use Laravel's built-in validation and authorization
+- Leverage Laravel's event system for extensibility
+
+### Security Considerations
+- Validate all user inputs
+- Implement proper authentication and authorization
+- Sanitize log data before display
+- Use Laravel's CSRF protection
+- Follow OWASP security guidelines
+
+## External Resources & Documentation
+
+### Primary Documentation
+- **Laravel Documentation**: https://laravel.com/docs
+- **PHP Documentation**: https://www.php.net/docs.php
+- **Composer Documentation**: https://getcomposer.org/doc/
+- **PHPUnit Documentation**: https://phpunit.de/documentation.html
+
+### Development Tools
+- **Cursor Documentation**: https://docs.cursor.com/welcome
+- **Windsurf Documentation**: https://docs.windsurf.com/windsurf/getting-started
+- **GitHub Documentation**: https://docs.github.com/
+- **Laravel Vapor**: https://vapor.laravel.com/docs
+
+### Code Quality & Standards
+- **PSR Standards**: https://www.php-fig.org/psr/
+- **Laravel Best Practices**: https://laravel.com/docs/best-practices
+- **PHP Security**: https://owasp.org/www-project-php-security-guide/
+
+### Testing & Quality Assurance
+- **PHPUnit Best Practices**: https://phpunit.de/documentation.html
+- **Laravel Testing**: https://laravel.com/docs/testing
+- **Code Coverage**: https://phpunit.de/documentation.html#code-coverage-analysis
+
+## Development Workflow
+
+### Git Workflow
+- Use conventional commits format
+- Create feature branches for new development
+- Require pull request reviews
+- Maintain clean commit history
+- Use semantic versioning
+
+### Testing Strategy
+- Unit tests for all business logic
+- Integration tests for service providers
+- Feature tests for HTTP endpoints
+- Maintain 80%+ code coverage
+- Use Laravel's testing helpers
+
+### Code Review Process
+- Review for security vulnerabilities
+- Check Laravel best practices compliance
+- Verify test coverage
+- Ensure documentation updates
+- Validate performance impact
+
+## Platform-Specific Guidelines
+
+### Log Viewer Functionality
+- Implement efficient log parsing
+- Support multiple log formats
+- Provide real-time log streaming
+- Include log filtering and search
+- Ensure proper error handling for malformed logs
+
+### Performance Optimization
+- Use lazy loading for large log files
+- Implement caching strategies
+- Optimize database queries
+- Use Laravel's queue system for heavy operations
+- Monitor memory usage for large log files
+
+### Extensibility
+- Design for plugin architecture
+- Use Laravel's service container
+- Implement event-driven architecture
+- Provide configuration options
+- Support custom log formatters
+
+## AI Assistant Behavior
+
+### When Writing Code
+- Always include proper error handling
+- Write self-documenting code with clear variable names
+- Include PHPDoc comments for complex methods
+- Follow Laravel conventions for method naming
+- Implement proper validation and sanitization
+
+### When Reviewing Code
+- Check for security vulnerabilities
+- Verify Laravel best practices
+- Ensure proper test coverage
+- Validate performance implications
+- Check for proper error handling
+
+### When Debugging
+- Use Laravel's debugging tools
+- Check Laravel logs first
+- Use proper logging levels
+- Implement structured logging
+- Use Laravel's artisan commands for debugging
+
+## Integration Guidelines
+
+### GitHub Integration
+- Use GitHub Actions for CI/CD
+- Implement automated testing
+- Use GitHub's security features
+- Maintain proper issue templates
+- Use GitHub's project management features
+
+### Windsurf Integration
+- Configure for Laravel deployment
+- Set up proper environment variables
+- Implement health checks
+- Configure monitoring and alerting
+- Use Windsurf's scaling features
+
+### Vapor Integration
+- Configure for serverless deployment
+- Optimize for cold starts
+- Use Vapor's database features
+- Implement proper caching
+- Configure Vapor's monitoring
+
+## Documentation Standards
+
+### Code Documentation
+- Use PHPDoc for all public methods
+- Include examples in documentation
+- Document configuration options
+- Provide usage examples
+- Maintain changelog
+
+### User Documentation
+- Clear installation instructions
+- Configuration examples
+- Troubleshooting guides
+- API documentation
+- Performance tuning guides
+
+## Monitoring & Health Checks
+
+### Application Health
+- Implement health check endpoints
+- Monitor log processing performance
+- Track error rates
+- Monitor memory usage
+- Check database connectivity
+
+### System Health
+- Monitor server resources
+- Track response times
+- Monitor error logs
+- Check external service dependencies
+- Implement alerting for critical issues
+
+## Security Guidelines
+
+### Data Protection
+- Encrypt sensitive log data
+- Implement proper access controls
+- Use secure communication protocols
+- Follow data retention policies
+- Implement audit logging
+
+### Access Control
+- Use Laravel's authentication system
+- Implement role-based access control
+- Use middleware for route protection
+- Validate user permissions
+- Implement session security
+
+## Performance Guidelines
+
+### Optimization Strategies
+- Use Laravel's caching system
+- Implement database query optimization
+- Use lazy loading for large datasets
+- Implement pagination for large results
+- Use Laravel's queue system for heavy operations
+
+### Monitoring
+- Track response times
+- Monitor memory usage
+- Check database performance
+- Monitor external API calls
+- Implement performance alerts
+
+## Emergency Procedures
+
+### Incident Response
+- Document incident response procedures
+- Implement rollback procedures
+- Use feature flags for safe deployments
+- Maintain backup strategies
+- Document recovery procedures
+
+### Communication
+- Establish communication protocols
+- Use proper escalation procedures
+- Maintain incident documentation
+- Implement status page updates
+- Use proper notification systems 

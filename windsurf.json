@@ -1,0 +1,277 @@
+{
+  "name": "log-viewer-platform",
+  "description": "Laravel-based log viewer platform with real-time monitoring capabilities",
+  "version": "1.0.0",
+  "type": "laravel",
+  "environment": "production",
+  
+  "build": {
+    "builder": "nixpacks",
+    "buildCommand": "composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache",
+    "startCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
+    "installCommand": "composer install --no-dev --optimize-autoloader"
+  },
+
+  "env": {
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "APP_URL": "https://log-viewer-platform.windsurf.app",
+    "APP_KEY": "base64:your-app-key-here",
+    "APP_NAME": "Log Viewer Platform",
+    "APP_TIMEZONE": "UTC",
+    "APP_LOCALE": "en",
+    "APP_FALLBACK_LOCALE": "en",
+    
+    "LOG_CHANNEL": "stack",
+    "LOG_DEPRECATIONS_CHANNEL": "null",
+    "LOG_LEVEL": "info",
+    
+    "DB_CONNECTION": "mysql",
+    "DB_HOST": "127.0.0.1",
+    "DB_PORT": "3306",
+    "DB_DATABASE": "log_viewer",
+    "DB_USERNAME": "log_viewer_user",
+    "DB_PASSWORD": "secure-password-here",
+    
+    "BROADCAST_DRIVER": "log",
+    "CACHE_DRIVER": "file",
+    "FILESYSTEM_DISK": "local",
+    "QUEUE_CONNECTION": "sync",
+    "SESSION_DRIVER": "file",
+    "SESSION_LIFETIME": "120",
+    
+    "MEMCACHED_HOST": "127.0.0.1",
+    "REDIS_HOST": "127.0.0.1",
+    "REDIS_PASSWORD": "null",
+    "REDIS_PORT": "6379",
+    
+    "MAIL_MAILER": "smtp",
+    "MAIL_HOST": "mailpit",
+    "MAIL_PORT": "1025",
+    "MAIL_USERNAME": "null",
+    "MAIL_PASSWORD": "null",
+    "MAIL_ENCRYPTION": "null",
+    "MAIL_FROM_ADDRESS": "hello@example.com",
+    "MAIL_FROM_NAME": "${APP_NAME}",
+    
+    "AWS_ACCESS_KEY_ID": "",
+    "AWS_SECRET_ACCESS_KEY": "",
+    "AWS_DEFAULT_REGION": "us-east-1",
+    "AWS_BUCKET": "",
+    "AWS_USE_PATH_STYLE_ENDPOINT": "false",
+    
+    "PUSHER_APP_ID": "",
+    "PUSHER_APP_KEY": "",
+    "PUSHER_APP_SECRET": "",
+    "PUSHER_HOST": "",
+    "PUSHER_PORT": "443",
+    "PUSHER_SCHEME": "https",
+    "PUSHER_APP_CLUSTER": "mt1",
+    
+    "VITE_APP_NAME": "${APP_NAME}",
+    "VITE_PUSHER_APP_KEY": "${PUSHER_APP_KEY}",
+    "VITE_PUSHER_HOST": "${PUSHER_HOST}",
+    "VITE_PUSHER_PORT": "${PUSHER_PORT}",
+    "VITE_PUSHER_SCHEME": "${PUSHER_SCHEME}",
+    "VITE_PUSHER_APP_CLUSTER": "${PUSHER_APP_CLUSTER}"
+  },
+
+  "healthCheck": {
+    "path": "/health",
+    "interval": "30s",
+    "timeout": "10s",
+    "retries": 3,
+    "startPeriod": "40s"
+  },
+
+  "monitoring": {
+    "enabled": true,
+    "metrics": {
+      "cpu": true,
+      "memory": true,
+      "disk": true,
+      "network": true,
+      "custom": [
+        "laravel_queue_jobs",
+        "laravel_cache_hits",
+        "laravel_database_queries",
+        "laravel_response_time"
+      ]
+    },
+    "alerts": {
+      "cpu_threshold": 80,
+      "memory_threshold": 85,
+      "disk_threshold": 90,
+      "response_time_threshold": 2000
+    }
+  },
+
+  "scaling": {
+    "min": 1,
+    "max": 10,
+    "auto": true,
+    "metrics": {
+      "cpu": 70,
+      "memory": 80,
+      "requests": 100
+    }
+  },
+
+  "domains": [
+    "log-viewer-platform.windsurf.app",
+    "logs.yourdomain.com"
+  ],
+
+  "volumes": {
+    "storage": {
+      "path": "/app/storage",
+      "size": "10GB"
+    },
+    "logs": {
+      "path": "/app/logs",
+      "size": "5GB"
+    }
+  },
+
+  "secrets": {
+    "APP_KEY": "your-secure-app-key",
+    "DB_PASSWORD": "your-secure-db-password",
+    "MAIL_PASSWORD": "your-mail-password",
+    "AWS_SECRET_ACCESS_KEY": "your-aws-secret"
+  },
+
+  "cron": {
+    "log_cleanup": {
+      "schedule": "0 2 * * *",
+      "command": "php artisan log:cleanup"
+    },
+    "cache_clear": {
+      "schedule": "0 3 * * *",
+      "command": "php artisan cache:clear"
+    },
+    "queue_restart": {
+      "schedule": "*/15 * * * *",
+      "command": "php artisan queue:restart"
+    }
+  },
+
+  "backup": {
+    "enabled": true,
+    "schedule": "0 1 * * *",
+    "retention": "30",
+    "storage": "s3",
+    "databases": ["mysql"],
+    "files": ["/app/storage", "/app/logs"]
+  },
+
+  "ssl": {
+    "enabled": true,
+    "provider": "letsencrypt",
+    "auto_renew": true
+  },
+
+  "cdn": {
+    "enabled": true,
+    "provider": "cloudflare",
+    "domains": ["logs.yourdomain.com"]
+  },
+
+  "database": {
+    "type": "mysql",
+    "version": "8.0",
+    "size": "db-s-1vcpu-1gb",
+    "backup": {
+      "enabled": true,
+      "schedule": "0 2 * * *",
+      "retention": "7"
+    }
+  },
+
+  "redis": {
+    "enabled": true,
+    "size": "db-s-1vcpu-1gb",
+    "persistence": true
+  },
+
+  "queue": {
+    "driver": "redis",
+    "workers": 2,
+    "timeout": 60,
+    "memory": 512
+  },
+
+  "cache": {
+    "driver": "redis",
+    "ttl": 3600
+  },
+
+  "session": {
+    "driver": "redis",
+    "lifetime": 120
+  },
+
+  "logging": {
+    "driver": "stack",
+    "channels": ["single", "daily", "slack"],
+    "level": "info",
+    "days": 14
+  },
+
+  "security": {
+    "headers": {
+      "X-Frame-Options": "DENY",
+      "X-Content-Type-Options": "nosniff",
+      "X-XSS-Protection": "1; mode=block",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "burst": 100
+    }
+  },
+
+  "performance": {
+    "opcache": {
+      "enabled": true,
+      "memory": 128,
+      "max_accelerated_files": 4000
+    },
+    "compression": {
+      "enabled": true,
+      "level": 6
+    },
+    "caching": {
+      "enabled": true,
+      "driver": "redis"
+    }
+  },
+
+  "notifications": {
+    "slack": {
+      "webhook": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+      "channel": "#deployments"
+    },
+    "email": {
+      "enabled": true,
+      "recipients": ["dev@yourdomain.com", "ops@yourdomain.com"]
+    }
+  },
+
+  "maintenance": {
+    "enabled": false,
+    "allowed_ips": ["127.0.0.1", "::1"],
+    "secret": "your-maintenance-secret"
+  },
+
+  "artisan": {
+    "commands": [
+      "config:cache",
+      "route:cache",
+      "view:cache",
+      "migrate --force",
+      "storage:link"
+    ]
+  }
+} 
