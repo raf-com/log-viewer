@@ -59,6 +59,33 @@ This is a Laravel-based log viewer package that provides real-time log monitorin
 - **Laravel Testing**: https://laravel.com/docs/testing
 - **Code Coverage**: https://phpunit.de/documentation.html#code-coverage-analysis
 
+## Platform-Specific Resources
+
+### Core Platform Documentation
+- **Platform Architecture**: docs/architecture/PLATFORM_ARCHITECTURE.md
+- **External Integrations**: docs/integrations/EXTERNAL_INTEGRATIONS.md
+- **Automation Workflows**: docs/automation/AUTOMATION_WORKFLOWS.md
+- **Developer Management**: docs/developer-support/DEVELOPER_MANAGEMENT.md
+- **Platform Normalization**: docs/normalization/PLATFORM_NORMALIZATION.md
+- **AI Intelligence System**: docs/ai/AI_INTELLIGENCE_SYSTEM.md
+- **MCP Integration**: docs/mcp/MCP_INTEGRATION_SYSTEM.md
+- **Search Engine**: docs/search/SEARCH_ENGINE.md
+- **Subsystem Index**: docs/subsystems/SUBSYSTEM_INDEX.md
+- **Web Resources**: docs/web-resources/WEB_RESOURCES_INDEX.md
+
+### Advanced AI Capabilities
+- **Natural Language Processing**: Support for intent recognition and entity extraction
+- **Code Analysis**: Automated code quality assessment and improvement suggestions
+- **Context Awareness**: Understanding of project structure and development patterns
+- **Intelligent Recommendations**: AI-powered suggestions for optimization and best practices
+
+### Integration Systems
+- **Cursor IDE Integration**: Advanced code completion, error detection, and refactoring
+- **Windsurf Deployment**: Automated deployment and scaling capabilities
+- **GitHub Integration**: CI/CD, code review, and project management
+- **Security Scanning**: Automated vulnerability detection and compliance checking
+- **Monitoring Systems**: Real-time performance monitoring and alerting
+
 ## Development Workflow
 
 ### Git Workflow
@@ -229,4 +256,121 @@ This is a Laravel-based log viewer package that provides real-time log monitorin
 - Use proper escalation procedures
 - Maintain incident documentation
 - Implement status page updates
-- Use proper notification systems 
+- Use proper notification systems
+
+## Advanced AI Capabilities
+
+### Context Understanding
+- Understand project structure and relationships
+- Recognize Laravel-specific patterns and conventions
+- Identify security vulnerabilities and best practices
+- Suggest performance optimizations
+- Provide architectural recommendations
+
+### Code Generation
+- Generate Laravel-specific code following best practices
+- Create comprehensive test suites
+- Implement proper error handling and validation
+- Follow naming conventions and coding standards
+- Include proper documentation and comments
+
+### Problem Solving
+- Analyze error messages and stack traces
+- Identify root causes of issues
+- Suggest appropriate solutions
+- Consider security implications
+- Validate performance impact
+
+## Resource Library Integration
+
+### External Documentation
+- **Laravel Ecosystem**: 20+ Laravel documentation links
+- **Security Resources**: 15+ security guidelines and tools
+- **Performance Optimization**: 12+ performance resources
+- **Testing & QA**: 8+ testing tools and frameworks
+- **Deployment & DevOps**: 15+ deployment resources
+
+### Development Tools
+- **Cursor IDE**: Advanced AI-powered development environment
+- **Windsurf**: Laravel-focused deployment platform
+- **GitHub**: Version control and CI/CD integration
+- **Laravel Vapor**: Serverless deployment option
+- **Docker**: Containerization for consistent deployment
+
+### Monitoring & Observability
+- **Sentry**: Error tracking and performance monitoring
+- **New Relic**: Application performance monitoring
+- **Datadog**: Infrastructure and application monitoring
+- **Cloudflare**: CDN and security services
+- **Redis**: Caching and session management
+
+## Search and Discovery
+
+### Platform Search Capabilities
+- **Documentation Search**: Find relevant documentation quickly
+- **Code Search**: Locate specific code patterns and implementations
+- **Configuration Search**: Find configuration options and settings
+- **Resource Search**: Access external resources and documentation
+- **Integration Search**: Discover available integrations and tools
+
+### Quick Reference Commands
+- `docs: [topic]` - Find documentation about specific topic
+- `code: [component]` - Find code for specific component
+- `config: [component]` - Find configuration for specific component
+- `resource: [category]` - Find external resources by category
+- `integration: [type]` - Find integrations by type
+
+## Normalization Standards
+
+### Documentation Structure
+- Follow standardized document templates
+- Include metadata headers with tags and categories
+- Maintain consistent naming conventions
+- Provide cross-references to related documentation
+- Include quick reference sections
+
+### Code Structure
+- Follow PSR-4 autoloading standards
+- Use consistent naming conventions (PascalCase for classes, camelCase for methods)
+- Include proper PHPDoc comments
+- Implement comprehensive error handling
+- Follow Laravel-specific patterns and conventions
+
+### Configuration Standards
+- Use consistent configuration file formats
+- Include metadata and documentation
+- Implement proper validation
+- Follow security best practices
+- Maintain version control
+
+## Continuous Improvement
+
+### Learning and Adaptation
+- Learn from user interactions and feedback
+- Adapt to project-specific requirements
+- Improve code generation quality
+- Enhance problem-solving capabilities
+- Update knowledge base with new information
+
+### Performance Optimization
+- Optimize response times for queries
+- Improve code analysis accuracy
+- Enhance context understanding
+- Streamline workflow automation
+- Monitor and improve AI performance
+
+## Emergency and Support
+
+### Critical Issues
+- Prioritize security vulnerabilities
+- Address performance bottlenecks
+- Fix critical bugs immediately
+- Implement proper error handling
+- Maintain system stability
+
+### Support Resources
+- Access comprehensive documentation
+- Utilize external resource library
+- Follow established procedures
+- Maintain communication protocols
+- Implement proper escalation procedures 

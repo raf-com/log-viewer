@@ -1,220 +1,280 @@
 {
-  "name": "log-viewer-platform",
-  "description": "Laravel-based log viewer platform with real-time monitoring capabilities",
+  "name": "laravel-log-viewer-platform",
+  "description": "Advanced Laravel Log Viewer Platform with comprehensive monitoring and AI integration",
   "version": "1.0.0",
   "type": "laravel",
   "environment": "production",
   
-  "build": {
-    "builder": "nixpacks",
-    "buildCommand": "composer install --no-dev --optimize-autoloader && php artisan config:cache && php artisan route:cache && php artisan view:cache",
-    "startCommand": "php artisan serve --host=0.0.0.0 --port=$PORT",
-    "installCommand": "composer install --no-dev --optimize-autoloader"
+  "configuration": {
+    "app_name": "log-viewer-platform",
+    "app_url": "https://log-viewer-platform.windsurf.app",
+    "app_env": "production",
+    "app_debug": false,
+    "app_timezone": "UTC",
+    "app_locale": "en",
+    "app_fallback_locale": "en",
+    "app_key": "base64:${APP_KEY}",
+    "app_cipher": "AES-256-CBC"
   },
 
-  "env": {
-    "APP_ENV": "production",
-    "APP_DEBUG": "false",
-    "APP_URL": "https://log-viewer-platform.windsurf.app",
-    "APP_KEY": "base64:your-app-key-here",
-    "APP_NAME": "Log Viewer Platform",
-    "APP_TIMEZONE": "UTC",
-    "APP_LOCALE": "en",
-    "APP_FALLBACK_LOCALE": "en",
-    
-    "LOG_CHANNEL": "stack",
-    "LOG_DEPRECATIONS_CHANNEL": "null",
-    "LOG_LEVEL": "info",
-    
-    "DB_CONNECTION": "mysql",
-    "DB_HOST": "127.0.0.1",
-    "DB_PORT": "3306",
-    "DB_DATABASE": "log_viewer",
-    "DB_USERNAME": "log_viewer_user",
-    "DB_PASSWORD": "secure-password-here",
-    
-    "BROADCAST_DRIVER": "log",
-    "CACHE_DRIVER": "file",
-    "FILESYSTEM_DISK": "local",
-    "QUEUE_CONNECTION": "sync",
-    "SESSION_DRIVER": "file",
-    "SESSION_LIFETIME": "120",
-    
-    "MEMCACHED_HOST": "127.0.0.1",
-    "REDIS_HOST": "127.0.0.1",
-    "REDIS_PASSWORD": "null",
-    "REDIS_PORT": "6379",
-    
-    "MAIL_MAILER": "smtp",
-    "MAIL_HOST": "mailpit",
-    "MAIL_PORT": "1025",
-    "MAIL_USERNAME": "null",
-    "MAIL_PASSWORD": "null",
-    "MAIL_ENCRYPTION": "null",
-    "MAIL_FROM_ADDRESS": "hello@example.com",
-    "MAIL_FROM_NAME": "${APP_NAME}",
-    
-    "AWS_ACCESS_KEY_ID": "",
-    "AWS_SECRET_ACCESS_KEY": "",
-    "AWS_DEFAULT_REGION": "us-east-1",
-    "AWS_BUCKET": "",
-    "AWS_USE_PATH_STYLE_ENDPOINT": "false",
-    
-    "PUSHER_APP_ID": "",
-    "PUSHER_APP_KEY": "",
-    "PUSHER_APP_SECRET": "",
-    "PUSHER_HOST": "",
-    "PUSHER_PORT": "443",
-    "PUSHER_SCHEME": "https",
-    "PUSHER_APP_CLUSTER": "mt1",
-    
-    "VITE_APP_NAME": "${APP_NAME}",
-    "VITE_PUSHER_APP_KEY": "${PUSHER_APP_KEY}",
-    "VITE_PUSHER_HOST": "${PUSHER_HOST}",
-    "VITE_PUSHER_PORT": "${PUSHER_PORT}",
-    "VITE_PUSHER_SCHEME": "${PUSHER_SCHEME}",
-    "VITE_PUSHER_APP_CLUSTER": "${PUSHER_APP_CLUSTER}"
+  "dependencies": {
+    "required": [
+      "php:8.2",
+      "composer:2.6",
+      "laravel:10.x",
+      "redis:7.0",
+      "mysql:8.0",
+      "nginx:1.24"
+    ],
+    "optional": [
+      "node:18.x",
+      "npm:9.x",
+      "yarn:1.22"
+    ]
   },
 
-  "healthCheck": {
-    "path": "/health",
-    "interval": "30s",
-    "timeout": "10s",
-    "retries": 3,
-    "startPeriod": "40s"
+  "metadata": {
+    "tags": [
+      "laravel",
+      "log-viewer",
+      "monitoring",
+      "ai-integration",
+      "production",
+      "high-availability"
+    ],
+    "category": "laravel-application",
+    "priority": "high"
+  },
+
+  "deployment": {
+    "strategy": "blue-green",
+    "health_check_path": "/health",
+    "health_check_timeout": 30,
+    "rollback_enabled": true,
+    "rollback_retention": 5,
+    "zero_downtime": true,
+    "maintenance_mode": false
+  },
+
+  "scaling": {
+    "auto_scaling": true,
+    "min_instances": 2,
+    "max_instances": 10,
+    "cpu_threshold": 70,
+    "memory_threshold": 80,
+    "response_time_threshold": 2000,
+    "scale_up_cooldown": 300,
+    "scale_down_cooldown": 600
   },
 
   "monitoring": {
     "enabled": true,
-    "metrics": {
-      "cpu": true,
-      "memory": true,
-      "disk": true,
-      "network": true,
-      "custom": [
-        "laravel_queue_jobs",
-        "laravel_cache_hits",
-        "laravel_database_queries",
-        "laravel_response_time"
-      ]
-    },
-    "alerts": {
-      "cpu_threshold": 80,
-      "memory_threshold": 85,
-      "disk_threshold": 90,
-      "response_time_threshold": 2000
+    "metrics": [
+      "response_time",
+      "throughput",
+      "error_rate",
+      "memory_usage",
+      "cpu_usage",
+      "disk_usage",
+      "database_connections",
+      "cache_hit_rate",
+      "queue_size",
+      "log_processing_rate"
+    ],
+    "alerts": [
+      {
+        "name": "high_response_time",
+        "condition": "response_time > 5000ms",
+        "severity": "warning",
+        "notification": ["slack", "email"]
+      },
+      {
+        "name": "high_error_rate",
+        "condition": "error_rate > 5%",
+        "severity": "critical",
+        "notification": ["slack", "email", "pagerduty"]
+      },
+      {
+        "name": "high_memory_usage",
+        "condition": "memory_usage > 85%",
+        "severity": "warning",
+        "notification": ["slack", "email"]
+      },
+      {
+        "name": "database_connection_limit",
+        "condition": "database_connections > 80%",
+        "severity": "warning",
+        "notification": ["slack", "email"]
+      }
+    ],
+    "logging": {
+      "level": "info",
+      "format": "json",
+      "retention": "30d",
+      "compression": true,
+      "encryption": true
     }
-  },
-
-  "scaling": {
-    "min": 1,
-    "max": 10,
-    "auto": true,
-    "metrics": {
-      "cpu": 70,
-      "memory": 80,
-      "requests": 100
-    }
-  },
-
-  "domains": [
-    "log-viewer-platform.windsurf.app",
-    "logs.yourdomain.com"
-  ],
-
-  "volumes": {
-    "storage": {
-      "path": "/app/storage",
-      "size": "10GB"
-    },
-    "logs": {
-      "path": "/app/logs",
-      "size": "5GB"
-    }
-  },
-
-  "secrets": {
-    "APP_KEY": "your-secure-app-key",
-    "DB_PASSWORD": "your-secure-db-password",
-    "MAIL_PASSWORD": "your-mail-password",
-    "AWS_SECRET_ACCESS_KEY": "your-aws-secret"
-  },
-
-  "cron": {
-    "log_cleanup": {
-      "schedule": "0 2 * * *",
-      "command": "php artisan log:cleanup"
-    },
-    "cache_clear": {
-      "schedule": "0 3 * * *",
-      "command": "php artisan cache:clear"
-    },
-    "queue_restart": {
-      "schedule": "*/15 * * * *",
-      "command": "php artisan queue:restart"
-    }
-  },
-
-  "backup": {
-    "enabled": true,
-    "schedule": "0 1 * * *",
-    "retention": "30",
-    "storage": "s3",
-    "databases": ["mysql"],
-    "files": ["/app/storage", "/app/logs"]
   },
 
   "ssl": {
     "enabled": true,
     "provider": "letsencrypt",
-    "auto_renew": true
+    "auto_renewal": true,
+    "hsts": true,
+    "hsts_max_age": 31536000,
+    "ocsp_stapling": true,
+    "ssl_protocols": ["TLSv1.2", "TLSv1.3"],
+    "ssl_ciphers": "ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384"
   },
 
   "cdn": {
     "enabled": true,
     "provider": "cloudflare",
-    "domains": ["logs.yourdomain.com"]
+    "cache_control": {
+      "static_assets": "public, max-age=31536000",
+      "api_responses": "public, max-age=300",
+      "dynamic_content": "no-cache"
+    },
+    "compression": true,
+    "minification": true,
+    "image_optimization": true
   },
 
   "database": {
     "type": "mysql",
     "version": "8.0",
-    "size": "db-s-1vcpu-1gb",
+    "engine": "innodb",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_unicode_ci",
+    "connection_limit": 100,
+    "query_cache": true,
+    "slow_query_log": true,
+    "slow_query_threshold": 1000,
     "backup": {
       "enabled": true,
-      "schedule": "0 2 * * *",
-      "retention": "7"
+      "frequency": "daily",
+      "retention": "30d",
+      "encryption": true
+    },
+    "replication": {
+      "enabled": true,
+      "read_replicas": 2,
+      "write_consistency": "strong"
     }
   },
 
   "redis": {
     "enabled": true,
-    "size": "db-s-1vcpu-1gb",
-    "persistence": true
+    "version": "7.0",
+    "max_memory": "2gb",
+    "max_memory_policy": "allkeys-lru",
+    "persistence": "rdb",
+    "backup": {
+      "enabled": true,
+      "frequency": "hourly",
+      "retention": "7d"
+    },
+    "clustering": {
+      "enabled": true,
+      "nodes": 3,
+      "replication_factor": 2
+    }
   },
 
   "queue": {
     "driver": "redis",
-    "workers": 2,
-    "timeout": 60,
-    "memory": 512
+    "default": "default",
+    "connections": {
+      "default": {
+        "driver": "redis",
+        "connection": "default",
+        "queue": "default",
+        "retry_after": 90,
+        "block_for": null
+      },
+      "high": {
+        "driver": "redis",
+        "connection": "default",
+        "queue": "high",
+        "retry_after": 90,
+        "block_for": null
+      },
+      "low": {
+        "driver": "redis",
+        "connection": "default",
+        "queue": "low",
+        "retry_after": 90,
+        "block_for": null
+      }
+    },
+    "failed": {
+      "driver": "database-uuids",
+      "database": "mysql",
+      "table": "failed_jobs"
+    },
+    "monitoring": {
+      "enabled": true,
+      "metrics": ["queue_size", "processing_time", "failed_jobs"],
+      "alerts": {
+        "queue_backlog": {
+          "condition": "queue_size > 1000",
+          "severity": "warning"
+        },
+        "failed_jobs": {
+          "condition": "failed_jobs > 10",
+          "severity": "critical"
+        }
+      }
+    }
   },
 
   "cache": {
-    "driver": "redis",
-    "ttl": 3600
+    "default": "redis",
+    "stores": {
+      "redis": {
+        "driver": "redis",
+        "connection": "cache",
+        "lock_connection": "default"
+      },
+      "file": {
+        "driver": "file"
+      },
+      "database": {
+        "driver": "database",
+        "table": "cache",
+        "connection": null,
+        "lock_connection": null
+      }
+    },
+    "prefix": "log_viewer_cache",
+    "ttl": 3600,
+    "compression": true
   },
 
-  "session": {
-    "driver": "redis",
-    "lifetime": 120
-  },
-
-  "logging": {
-    "driver": "stack",
-    "channels": ["single", "daily", "slack"],
-    "level": "info",
-    "days": 14
+  "storage": {
+    "default": "s3",
+    "disks": {
+      "local": {
+        "driver": "local",
+        "root": "storage/app"
+      },
+      "s3": {
+        "driver": "s3",
+        "key": "${AWS_ACCESS_KEY_ID}",
+        "secret": "${AWS_SECRET_ACCESS_KEY}",
+        "region": "${AWS_DEFAULT_REGION}",
+        "bucket": "${AWS_BUCKET}",
+        "url": "${AWS_URL}",
+        "endpoint": "${AWS_ENDPOINT}",
+        "use_path_style_endpoint": false
+      }
+    },
+    "backup": {
+      "enabled": true,
+      "frequency": "daily",
+      "retention": "90d",
+      "encryption": true
+    }
   },
 
   "security": {
@@ -223,55 +283,258 @@
       "X-Content-Type-Options": "nosniff",
       "X-XSS-Protection": "1; mode=block",
       "Referrer-Policy": "strict-origin-when-cross-origin",
-      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
+      "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-ancestors 'none';",
+      "Permissions-Policy": "geolocation=(), microphone=(), camera=()"
     },
     "rate_limiting": {
       "enabled": true,
-      "requests_per_minute": 60,
-      "burst": 100
+      "api_requests": 1000,
+      "api_window": 60,
+      "web_requests": 100,
+      "web_window": 60
+    },
+    "authentication": {
+      "session_lifetime": 120,
+      "session_expire_on_close": false,
+      "session_secure_cookies": true,
+      "session_same_site": "lax"
+    },
+    "encryption": {
+      "algorithm": "AES-256-GCM",
+      "key_rotation": "30d"
     }
   },
 
   "performance": {
-    "opcache": {
-      "enabled": true,
-      "memory": 128,
-      "max_accelerated_files": 4000
+    "optimization": {
+      "opcache": true,
+      "opcache_memory_consumption": 256,
+      "opcache_max_accelerated_files": 20000,
+      "opcache_revalidate_freq": 0,
+      "opcache_validate_timestamps": false,
+      "realpath_cache_size": 4096,
+      "realpath_cache_ttl": 600
     },
     "compression": {
-      "enabled": true,
-      "level": 6
+      "gzip": true,
+      "brotli": true,
+      "min_level": 6
     },
     "caching": {
-      "enabled": true,
-      "driver": "redis"
+      "route_cache": true,
+      "config_cache": true,
+      "view_cache": true,
+      "event_cache": true
     }
   },
 
   "notifications": {
-    "slack": {
-      "webhook": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
-      "channel": "#deployments"
+    "providers": {
+      "slack": {
+        "webhook_url": "${SLACK_WEBHOOK_URL}",
+        "channel": "#deployments",
+        "username": "Windsurf Bot"
+      },
+      "email": {
+        "smtp_host": "${MAIL_HOST}",
+        "smtp_port": "${MAIL_PORT}",
+        "smtp_username": "${MAIL_USERNAME}",
+        "smtp_password": "${MAIL_PASSWORD}",
+        "smtp_encryption": "tls"
+      },
+      "pagerduty": {
+        "api_key": "${PAGERDUTY_API_KEY}",
+        "service_id": "${PAGERDUTY_SERVICE_ID}"
+      }
     },
-    "email": {
-      "enabled": true,
-      "recipients": ["dev@yourdomain.com", "ops@yourdomain.com"]
+    "events": {
+      "deployment_started": ["slack", "email"],
+      "deployment_success": ["slack", "email"],
+      "deployment_failed": ["slack", "email", "pagerduty"],
+      "health_check_failed": ["slack", "email", "pagerduty"],
+      "scaling_event": ["slack", "email"],
+      "security_alert": ["slack", "email", "pagerduty"]
     }
   },
 
   "maintenance": {
-    "enabled": false,
-    "allowed_ips": ["127.0.0.1", "::1"],
-    "secret": "your-maintenance-secret"
+    "scheduled_maintenance": {
+      "enabled": true,
+      "window": "sunday 02:00-04:00 UTC",
+      "notification_advance": "24h"
+    },
+    "backup_maintenance": {
+      "enabled": true,
+      "frequency": "weekly",
+      "cleanup_old_backups": true,
+      "verify_backups": true
+    },
+    "log_rotation": {
+      "enabled": true,
+      "max_size": "100M",
+      "max_files": 30,
+      "compress_old_logs": true
+    }
   },
 
-  "artisan": {
-    "commands": [
-      "config:cache",
-      "route:cache",
-      "view:cache",
-      "migrate --force",
-      "storage:link"
+  "environment_variables": {
+    "APP_NAME": "Laravel Log Viewer Platform",
+    "APP_ENV": "production",
+    "APP_KEY": "base64:${APP_KEY}",
+    "APP_DEBUG": "false",
+    "APP_URL": "https://log-viewer-platform.windsurf.app",
+    "APP_TIMEZONE": "UTC",
+    "APP_LOCALE": "en",
+    "APP_FALLBACK_LOCALE": "en",
+    "APP_CIPHER": "AES-256-CBC",
+    "LOG_CHANNEL": "stack",
+    "LOG_DEPRECATIONS_CHANNEL": "null",
+    "LOG_LEVEL": "info",
+    "DB_CONNECTION": "mysql",
+    "DB_HOST": "${DB_HOST}",
+    "DB_PORT": "3306",
+    "DB_DATABASE": "${DB_DATABASE}",
+    "DB_USERNAME": "${DB_USERNAME}",
+    "DB_PASSWORD": "${DB_PASSWORD}",
+    "BROADCAST_DRIVER": "redis",
+    "CACHE_DRIVER": "redis",
+    "FILESYSTEM_DISK": "s3",
+    "QUEUE_CONNECTION": "redis",
+    "SESSION_DRIVER": "redis",
+    "SESSION_LIFETIME": "120",
+    "REDIS_HOST": "${REDIS_HOST}",
+    "REDIS_PASSWORD": "${REDIS_PASSWORD}",
+    "REDIS_PORT": "6379",
+    "MAIL_MAILER": "smtp",
+    "MAIL_HOST": "${MAIL_HOST}",
+    "MAIL_PORT": "${MAIL_PORT}",
+    "MAIL_USERNAME": "${MAIL_USERNAME}",
+    "MAIL_PASSWORD": "${MAIL_PASSWORD}",
+    "MAIL_ENCRYPTION": "tls",
+    "MAIL_FROM_ADDRESS": "noreply@log-viewer-platform.windsurf.app",
+    "MAIL_FROM_NAME": "Laravel Log Viewer Platform",
+    "AWS_ACCESS_KEY_ID": "${AWS_ACCESS_KEY_ID}",
+    "AWS_SECRET_ACCESS_KEY": "${AWS_SECRET_ACCESS_KEY}",
+    "AWS_DEFAULT_REGION": "${AWS_DEFAULT_REGION}",
+    "AWS_BUCKET": "${AWS_BUCKET}",
+    "AWS_URL": "${AWS_URL}",
+    "AWS_ENDPOINT": "${AWS_ENDPOINT}",
+    "PUSHER_APP_ID": "${PUSHER_APP_ID}",
+    "PUSHER_APP_KEY": "${PUSHER_APP_KEY}",
+    "PUSHER_APP_SECRET": "${PUSHER_APP_SECRET}",
+    "PUSHER_HOST": "${PUSHER_HOST}",
+    "PUSHER_PORT": "443",
+    "PUSHER_SCHEME": "https",
+    "PUSHER_APP_CLUSTER": "${PUSHER_APP_CLUSTER}",
+    "VITE_APP_NAME": "Laravel Log Viewer Platform",
+    "VITE_PUSHER_APP_KEY": "${PUSHER_APP_KEY}",
+    "VITE_PUSHER_HOST": "${PUSHER_HOST}",
+    "VITE_PUSHER_PORT": "443",
+    "VITE_PUSHER_SCHEME": "https",
+    "VITE_PUSHER_APP_CLUSTER": "${PUSHER_APP_CLUSTER}"
+  },
+
+  "health_checks": {
+    "endpoints": [
+      {
+        "path": "/health",
+        "method": "GET",
+        "expected_status": 200,
+        "timeout": 30,
+        "interval": 30
+      },
+      {
+        "path": "/health/database",
+        "method": "GET",
+        "expected_status": 200,
+        "timeout": 10,
+        "interval": 60
+      },
+      {
+        "path": "/health/redis",
+        "method": "GET",
+        "expected_status": 200,
+        "timeout": 10,
+        "interval": 60
+      },
+      {
+        "path": "/health/queue",
+        "method": "GET",
+        "expected_status": 200,
+        "timeout": 10,
+        "interval": 60
+      },
+      {
+        "path": "/health/storage",
+        "method": "GET",
+        "expected_status": 200,
+        "timeout": 10,
+        "interval": 300
+      }
+    ],
+    "custom_checks": [
+      {
+        "name": "log_processing",
+        "script": "php artisan log:check",
+        "timeout": 30,
+        "interval": 300
+      },
+      {
+        "name": "queue_processing",
+        "script": "php artisan queue:check",
+        "timeout": 30,
+        "interval": 300
+      },
+      {
+        "name": "cache_performance",
+        "script": "php artisan cache:check",
+        "timeout": 30,
+        "interval": 600
+      }
     ]
+  },
+
+  "artisan_commands": {
+    "post_deploy": [
+      "php artisan config:cache",
+      "php artisan route:cache",
+      "php artisan view:cache",
+      "php artisan event:cache",
+      "php artisan migrate --force",
+      "php artisan queue:restart",
+      "php artisan storage:link"
+    ],
+    "maintenance": [
+      "php artisan log:cleanup",
+      "php artisan cache:clear",
+      "php artisan queue:flush",
+      "php artisan optimize:clear"
+    ]
+  },
+
+  "integrations": {
+    "github": {
+      "enabled": true,
+      "webhook_secret": "${GITHUB_WEBHOOK_SECRET}",
+      "auto_deploy": true,
+      "branch": "main"
+    },
+    "sentry": {
+      "enabled": true,
+      "dsn": "${SENTRY_DSN}",
+      "environment": "production",
+      "performance_monitoring": true
+    },
+    "new_relic": {
+      "enabled": true,
+      "license_key": "${NEW_RELIC_LICENSE_KEY}",
+      "app_name": "Laravel Log Viewer Platform"
+    },
+    "datadog": {
+      "enabled": true,
+      "api_key": "${DATADOG_API_KEY}",
+      "app_key": "${DATADOG_APP_KEY}",
+      "service_name": "laravel-log-viewer"
+    }
   }
 } 

@@ -1,0 +1,593 @@
+id: 12345
+name: laravel-log-viewer-platform
+environments:
+  production:
+    memory: 1024
+    cli-memory: 512
+    runtime: 'php-8.2'
+    build:
+      - 'composer install --no-dev --optimize-autoloader'
+      - 'php artisan event:cache'
+      - 'npm ci && npm run build'
+    deploy:
+      - 'php artisan migrate --force'
+      - 'php artisan config:cache'
+      - 'php artisan route:cache'
+      - 'php artisan view:cache'
+    env:
+      APP_ENV: production
+      APP_DEBUG: false
+      APP_URL: 'https://log-viewer-platform.vapor-farm.com'
+      APP_KEY: '${APP_KEY}'
+      APP_NAME: 'Laravel Log Viewer Platform'
+      APP_TIMEZONE: UTC
+      APP_LOCALE: en
+      APP_FALLBACK_LOCALE: en
+      APP_CIPHER: AES-256-CBC
+      
+      LOG_CHANNEL: stack
+      LOG_DEPRECATIONS_CHANNEL: null
+      LOG_LEVEL: info
+      
+      DB_CONNECTION: mysql
+      DB_HOST: '${DB_HOST}'
+      DB_PORT: 3306
+      DB_DATABASE: '${DB_DATABASE}'
+      DB_USERNAME: '${DB_USERNAME}'
+      DB_PASSWORD: '${DB_PASSWORD}'
+      
+      BROADCAST_DRIVER: redis
+      CACHE_DRIVER: redis
+      FILESYSTEM_DISK: s3
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      SESSION_LIFETIME: 120
+      
+      REDIS_HOST: '${REDIS_HOST}'
+      REDIS_PASSWORD: '${REDIS_PASSWORD}'
+      REDIS_PORT: 6379
+      
+      MAIL_MAILER: smtp
+      MAIL_HOST: '${MAIL_HOST}'
+      MAIL_PORT: '${MAIL_PORT}'
+      MAIL_USERNAME: '${MAIL_USERNAME}'
+      MAIL_PASSWORD: '${MAIL_PASSWORD}'
+      MAIL_ENCRYPTION: tls
+      MAIL_FROM_ADDRESS: 'noreply@log-viewer-platform.vapor-farm.com'
+      MAIL_FROM_NAME: 'Laravel Log Viewer Platform'
+      
+      AWS_ACCESS_KEY_ID: '${AWS_ACCESS_KEY_ID}'
+      AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
+      AWS_DEFAULT_REGION: '${AWS_DEFAULT_REGION}'
+      AWS_BUCKET: '${AWS_BUCKET}'
+      AWS_URL: '${AWS_URL}'
+      AWS_ENDPOINT: '${AWS_ENDPOINT}'
+      AWS_USE_PATH_STYLE_ENDPOINT: false
+      
+      PUSHER_APP_ID: '${PUSHER_APP_ID}'
+      PUSHER_APP_KEY: '${PUSHER_APP_KEY}'
+      PUSHER_APP_SECRET: '${PUSHER_APP_SECRET}'
+      PUSHER_HOST: '${PUSHER_HOST}'
+      PUSHER_PORT: 443
+      PUSHER_SCHEME: https
+      PUSHER_APP_CLUSTER: '${PUSHER_APP_CLUSTER}'
+      
+      VITE_APP_NAME: 'Laravel Log Viewer Platform'
+      VITE_PUSHER_APP_KEY: '${PUSHER_APP_KEY}'
+      VITE_PUSHER_HOST: '${PUSHER_HOST}'
+      VITE_PUSHER_PORT: 443
+      VITE_PUSHER_SCHEME: https
+      VITE_PUSHER_APP_CLUSTER: '${PUSHER_APP_CLUSTER}'
+      
+      SENTRY_DSN: '${SENTRY_DSN}'
+      SENTRY_ENVIRONMENT: production
+      
+      NEW_RELIC_LICENSE_KEY: '${NEW_RELIC_LICENSE_KEY}'
+      NEW_RELIC_APP_NAME: 'Laravel Log Viewer Platform'
+      
+      DATADOG_API_KEY: '${DATADOG_API_KEY}'
+      DATADOG_APP_KEY: '${DATADOG_APP_KEY}'
+      DATADOG_SERVICE_NAME: laravel-log-viewer
+      
+      SLACK_WEBHOOK_URL: '${SLACK_WEBHOOK_URL}'
+      PAGERDUTY_API_KEY: '${PAGERDUTY_API_KEY}'
+      PAGERDUTY_SERVICE_ID: '${PAGERDUTY_SERVICE_ID}'
+      
+      GITHUB_WEBHOOK_SECRET: '${GITHUB_WEBHOOK_SECRET}'
+      
+      VAPOR_API_TOKEN: '${VAPOR_API_TOKEN}'
+      
+    databases:
+      - id: '${DB_ID}'
+        name: log-viewer-production
+        type: mysql8
+        size: db-s-2vcpu-4gb
+        storage: 25
+        
+    caches:
+      - id: '${REDIS_ID}'
+        name: log-viewer-cache
+        type: redis7
+        size: cache-s-1vcpu-1gb
+        
+    storage:
+      - id: '${STORAGE_ID}'
+        name: log-viewer-storage
+        type: s3
+        bucket: log-viewer-platform-storage
+        
+    domains:
+      - log-viewer-platform.vapor-farm.com
+      - logs.yourdomain.com
+      
+    functions:
+      - 'app/Http/Controllers/LogViewerController.php'
+      - 'app/Http/Controllers/HealthController.php'
+      - 'app/Http/Controllers/StatusController.php'
+      - 'app/Http/Controllers/Api/LogController.php'
+      - 'app/Http/Controllers/Api/HealthController.php'
+      
+    queues:
+      - name: default
+        connection: redis
+        memory: 512
+        timeout: 60
+        workers: 2
+        
+      - name: high
+        connection: redis
+        memory: 512
+        timeout: 60
+        workers: 1
+        
+      - name: low
+        connection: redis
+        memory: 256
+        timeout: 120
+        workers: 1
+        
+    scheduled:
+      - command: 'log:cleanup'
+        expression: '0 2 * * *'
+        memory: 512
+        
+      - command: 'cache:clear'
+        expression: '0 3 * * *'
+        memory: 512
+        
+      - command: 'queue:restart'
+        expression: '*/15 * * * *'
+        memory: 256
+        
+      - command: 'backup:run'
+        expression: '0 1 * * *'
+        memory: 1024
+        
+      - command: 'health:check'
+        expression: '*/5 * * * *'
+        memory: 256
+        
+    metrics:
+      - name: response_time
+        type: duration
+        threshold: 5000
+        
+      - name: error_rate
+        type: percentage
+        threshold: 5
+        
+      - name: memory_usage
+        type: percentage
+        threshold: 80
+        
+      - name: database_connections
+        type: count
+        threshold: 80
+        
+      - name: queue_size
+        type: count
+        threshold: 1000
+        
+      - name: log_processing_rate
+        type: rate
+        threshold: 100
+        
+    alarms:
+      - name: high_response_time
+        metric: response_time
+        condition: '> 5000'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: high_error_rate
+        metric: error_rate
+        condition: '> 5'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: high_memory_usage
+        metric: memory_usage
+        condition: '> 80'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: database_connection_limit
+        metric: database_connections
+        condition: '> 80'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: queue_backlog
+        metric: queue_size
+        condition: '> 1000'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+    notifications:
+      - type: slack
+        webhook: '${SLACK_WEBHOOK_URL}'
+        channel: '#deployments'
+        
+      - type: email
+        address: 'dev@yourdomain.com'
+        
+      - type: pagerduty
+        api_key: '${PAGERDUTY_API_KEY}'
+        service_id: '${PAGERDUTY_SERVICE_ID}'
+        
+    secrets:
+      - APP_KEY
+      - DB_PASSWORD
+      - MAIL_PASSWORD
+      - AWS_SECRET_ACCESS_KEY
+      - PUSHER_APP_SECRET
+      - SENTRY_DSN
+      - NEW_RELIC_LICENSE_KEY
+      - DATADOG_API_KEY
+      - DATADOG_APP_KEY
+      - SLACK_WEBHOOK_URL
+      - PAGERDUTY_API_KEY
+      - PAGERDUTY_SERVICE_ID
+      - GITHUB_WEBHOOK_SECRET
+      - VAPOR_API_TOKEN
+      
+    warm: 5
+    max_execution: 30
+    timeout: 30
+    
+  staging:
+    memory: 512
+    cli-memory: 256
+    runtime: 'php-8.2'
+    build:
+      - 'composer install --no-dev --optimize-autoloader'
+      - 'php artisan event:cache'
+      - 'npm ci && npm run build'
+    deploy:
+      - 'php artisan migrate --force'
+      - 'php artisan config:cache'
+      - 'php artisan route:cache'
+      - 'php artisan view:cache'
+    env:
+      APP_ENV: staging
+      APP_DEBUG: true
+      APP_URL: 'https://staging-log-viewer-platform.vapor-farm.com'
+      APP_KEY: '${APP_KEY}'
+      APP_NAME: 'Laravel Log Viewer Platform (Staging)'
+      APP_TIMEZONE: UTC
+      APP_LOCALE: en
+      APP_FALLBACK_LOCALE: en
+      APP_CIPHER: AES-256-CBC
+      
+      LOG_CHANNEL: stack
+      LOG_DEPRECATIONS_CHANNEL: null
+      LOG_LEVEL: debug
+      
+      DB_CONNECTION: mysql
+      DB_HOST: '${STAGING_DB_HOST}'
+      DB_PORT: 3306
+      DB_DATABASE: '${STAGING_DB_DATABASE}'
+      DB_USERNAME: '${STAGING_DB_USERNAME}'
+      DB_PASSWORD: '${STAGING_DB_PASSWORD}'
+      
+      BROADCAST_DRIVER: redis
+      CACHE_DRIVER: redis
+      FILESYSTEM_DISK: s3
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+      SESSION_LIFETIME: 120
+      
+      REDIS_HOST: '${STAGING_REDIS_HOST}'
+      REDIS_PASSWORD: '${STAGING_REDIS_PASSWORD}'
+      REDIS_PORT: 6379
+      
+      MAIL_MAILER: smtp
+      MAIL_HOST: '${MAIL_HOST}'
+      MAIL_PORT: '${MAIL_PORT}'
+      MAIL_USERNAME: '${MAIL_USERNAME}'
+      MAIL_PASSWORD: '${MAIL_PASSWORD}'
+      MAIL_ENCRYPTION: tls
+      MAIL_FROM_ADDRESS: 'noreply@staging-log-viewer-platform.vapor-farm.com'
+      MAIL_FROM_NAME: 'Laravel Log Viewer Platform (Staging)'
+      
+      AWS_ACCESS_KEY_ID: '${AWS_ACCESS_KEY_ID}'
+      AWS_SECRET_ACCESS_KEY: '${AWS_SECRET_ACCESS_KEY}'
+      AWS_DEFAULT_REGION: '${AWS_DEFAULT_REGION}'
+      AWS_BUCKET: '${STAGING_AWS_BUCKET}'
+      AWS_URL: '${AWS_URL}'
+      AWS_ENDPOINT: '${AWS_ENDPOINT}'
+      AWS_USE_PATH_STYLE_ENDPOINT: false
+      
+      PUSHER_APP_ID: '${PUSHER_APP_ID}'
+      PUSHER_APP_KEY: '${PUSHER_APP_KEY}'
+      PUSHER_APP_SECRET: '${PUSHER_APP_SECRET}'
+      PUSHER_HOST: '${PUSHER_HOST}'
+      PUSHER_PORT: 443
+      PUSHER_SCHEME: https
+      PUSHER_APP_CLUSTER: '${PUSHER_APP_CLUSTER}'
+      
+      VITE_APP_NAME: 'Laravel Log Viewer Platform (Staging)'
+      VITE_PUSHER_APP_KEY: '${PUSHER_APP_KEY}'
+      VITE_PUSHER_HOST: '${PUSHER_HOST}'
+      VITE_PUSHER_PORT: 443
+      VITE_PUSHER_SCHEME: https
+      VITE_PUSHER_APP_CLUSTER: '${PUSHER_APP_CLUSTER}'
+      
+      SENTRY_DSN: '${SENTRY_DSN}'
+      SENTRY_ENVIRONMENT: staging
+      
+      NEW_RELIC_LICENSE_KEY: '${NEW_RELIC_LICENSE_KEY}'
+      NEW_RELIC_APP_NAME: 'Laravel Log Viewer Platform (Staging)'
+      
+      DATADOG_API_KEY: '${DATADOG_API_KEY}'
+      DATADOG_APP_KEY: '${DATADOG_APP_KEY}'
+      DATADOG_SERVICE_NAME: laravel-log-viewer-staging
+      
+      SLACK_WEBHOOK_URL: '${SLACK_WEBHOOK_URL}'
+      
+      VAPOR_API_TOKEN: '${VAPOR_API_TOKEN}'
+      
+    databases:
+      - id: '${STAGING_DB_ID}'
+        name: log-viewer-staging
+        type: mysql8
+        size: db-s-1vcpu-2gb
+        storage: 10
+        
+    caches:
+      - id: '${STAGING_REDIS_ID}'
+        name: log-viewer-staging-cache
+        type: redis7
+        size: cache-s-1vcpu-1gb
+        
+    storage:
+      - id: '${STAGING_STORAGE_ID}'
+        name: log-viewer-staging-storage
+        type: s3
+        bucket: log-viewer-platform-staging-storage
+        
+    domains:
+      - staging-log-viewer-platform.vapor-farm.com
+      - staging-logs.yourdomain.com
+      
+    functions:
+      - 'app/Http/Controllers/LogViewerController.php'
+      - 'app/Http/Controllers/HealthController.php'
+      - 'app/Http/Controllers/StatusController.php'
+      - 'app/Http/Controllers/Api/LogController.php'
+      - 'app/Http/Controllers/Api/HealthController.php'
+      
+    queues:
+      - name: default
+        connection: redis
+        memory: 256
+        timeout: 60
+        workers: 1
+        
+      - name: high
+        connection: redis
+        memory: 256
+        timeout: 60
+        workers: 1
+        
+      - name: low
+        connection: redis
+        memory: 128
+        timeout: 120
+        workers: 1
+        
+    scheduled:
+      - command: 'log:cleanup'
+        expression: '0 2 * * *'
+        memory: 256
+        
+      - command: 'cache:clear'
+        expression: '0 3 * * *'
+        memory: 256
+        
+      - command: 'queue:restart'
+        expression: '*/15 * * * *'
+        memory: 128
+        
+      - command: 'health:check'
+        expression: '*/5 * * * *'
+        memory: 128
+        
+    metrics:
+      - name: response_time
+        type: duration
+        threshold: 3000
+        
+      - name: error_rate
+        type: percentage
+        threshold: 10
+        
+      - name: memory_usage
+        type: percentage
+        threshold: 70
+        
+      - name: database_connections
+        type: count
+        threshold: 50
+        
+      - name: queue_size
+        type: count
+        threshold: 500
+        
+      - name: log_processing_rate
+        type: rate
+        threshold: 50
+        
+    alarms:
+      - name: high_response_time
+        metric: response_time
+        condition: '> 3000'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: high_error_rate
+        metric: error_rate
+        condition: '> 10'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: high_memory_usage
+        metric: memory_usage
+        condition: '> 70'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: database_connection_limit
+        metric: database_connections
+        condition: '> 50'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+      - name: queue_backlog
+        metric: queue_size
+        condition: '> 500'
+        period: 300
+        evaluation_periods: 2
+        comparison_operator: GreaterThanThreshold
+        
+    notifications:
+      - type: slack
+        webhook: '${SLACK_WEBHOOK_URL}'
+        channel: '#staging-deployments'
+        
+      - type: email
+        address: 'dev@yourdomain.com'
+        
+    secrets:
+      - APP_KEY
+      - STAGING_DB_PASSWORD
+      - MAIL_PASSWORD
+      - AWS_SECRET_ACCESS_KEY
+      - PUSHER_APP_SECRET
+      - SENTRY_DSN
+      - NEW_RELIC_LICENSE_KEY
+      - DATADOG_API_KEY
+      - DATADOG_APP_KEY
+      - SLACK_WEBHOOK_URL
+      - VAPOR_API_TOKEN
+      
+    warm: 2
+    max_execution: 30
+    timeout: 30
+
+databases:
+  - id: '${DB_ID}'
+    name: log-viewer-production
+    type: mysql8
+    size: db-s-2vcpu-4gb
+    storage: 25
+    
+  - id: '${STAGING_DB_ID}'
+    name: log-viewer-staging
+    type: mysql8
+    size: db-s-1vcpu-2gb
+    storage: 10
+
+caches:
+  - id: '${REDIS_ID}'
+    name: log-viewer-cache
+    type: redis7
+    size: cache-s-1vcpu-1gb
+    
+  - id: '${STAGING_REDIS_ID}'
+    name: log-viewer-staging-cache
+    type: redis7
+    size: cache-s-1vcpu-1gb
+
+storage:
+  - id: '${STORAGE_ID}'
+    name: log-viewer-storage
+    type: s3
+    bucket: log-viewer-platform-storage
+    
+  - id: '${STAGING_STORAGE_ID}'
+    name: log-viewer-staging-storage
+    type: s3
+    bucket: log-viewer-platform-staging-storage
+
+teams:
+  - id: '${TEAM_ID}'
+    name: 'Log Viewer Platform Team'
+    members:
+      - 'dev@yourdomain.com'
+      - 'ops@yourdomain.com'
+      - 'admin@yourdomain.com'
+
+notifications:
+  - type: slack
+    webhook: '${SLACK_WEBHOOK_URL}'
+    channel: '#vapor-deployments'
+    
+  - type: email
+    address: 'dev@yourdomain.com'
+    
+  - type: pagerduty
+    api_key: '${PAGERDUTY_API_KEY}'
+    service_id: '${PAGERDUTY_SERVICE_ID}'
+
+secrets:
+  - APP_KEY
+  - DB_PASSWORD
+  - STAGING_DB_PASSWORD
+  - MAIL_PASSWORD
+  - AWS_SECRET_ACCESS_KEY
+  - PUSHER_APP_SECRET
+  - SENTRY_DSN
+  - NEW_RELIC_LICENSE_KEY
+  - DATADOG_API_KEY
+  - DATADOG_APP_KEY
+  - SLACK_WEBHOOK_URL
+  - PAGERDUTY_API_KEY
+  - PAGERDUTY_SERVICE_ID
+  - GITHUB_WEBHOOK_SECRET
+  - VAPOR_API_TOKEN
+
+build:
+  - 'composer install --no-dev --optimize-autoloader'
+  - 'php artisan event:cache'
+  - 'npm ci && npm run build'
+
+deploy:
+  - 'php artisan migrate --force'
+  - 'php artisan config:cache'
+  - 'php artisan route:cache'
+  - 'php artisan view:cache'
+  - 'php artisan storage:link'
+
+warm: 5
+max_execution: 30
+timeout: 30 
